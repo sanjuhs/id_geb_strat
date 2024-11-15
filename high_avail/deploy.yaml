@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: asup-processor
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: asup-processor
+  template:
+    metadata:
+      labels:
+        app: asup-processor
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+    spec:
+      containers:
+        - name: asup-processor
+          image: asup-processor:latest
+          ports:
+            - containerPort: 8000
+              name: metrics
+          env:
+            - name: REDIS_HOST_1
+              value: "redis-cluster-0.redis"
+            - name: REDIS_HOST_2
+              value: "redis-cluster-1.redis"
+            - name: REDIS_HOST_3
+              value: "redis-cluster-2.redis"
+            - name: KAFKA_SERVERS
+              value: "kafka-0:9092,kafka-1:9092,kafka-2:9092"
+            - name: S3_BUCKET
+              value: "asup-storage"
+            - name: MAX_WORKERS
+              value: "10"
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 15
+            periodSeconds: 5
