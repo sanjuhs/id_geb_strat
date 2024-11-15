@@ -1,0 +1,8 @@
+# requirements.txt
+confluent-kafka==2.3.0
+redis==5.0.1
+pytest==7.4.3
+pytest-asyncio==0.23.2
+fakeredis==2.20.0
+kafka-python==2.0.2
+python-dotenv==1.0.0
